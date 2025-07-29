@@ -5,7 +5,7 @@ class SimpleGoogleSheetsDB {
         this.sheetName = 'Mathgame DB';
         
         // For public read-only access
-        this.apiKey = 'AIzaSyDyzmJY9n8OPEi6nMQJpK5U5F-q5zX2lX8'; // This is a demo key - replace with yours
+        this.apiKey = 'AIzaSyDc2GZIPRdH1SedOj63O342rjKrd1VM_aw';
         this.baseUrl = 'https://sheets.googleapis.com/v4/spreadsheets';
     }
 
