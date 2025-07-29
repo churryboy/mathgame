@@ -1,21 +1,8 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "**/*.{html,js,css,png,jpg,jpeg,gif,svg,avif}",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "status": 404,
-      "dest": "/404.html"
-    }
-  ],
+  "buildCommand": "echo 'No build step'",
+  "outputDirectory": ".",
+  "public": true,
   "headers": [
     {
       "source": "/(.*)",
