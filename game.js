@@ -2492,18 +2492,37 @@ class MathMonsterGame {
         // Use existing tiers instead of recalculating every time
         const updatedUsers = allUsers;
         
-        // Get all users who have played in this specific grade
+        // Get all users in this grade (whether they've played or not)
         const gradePlayersData = [];
         updatedUsers.forEach(user => {
-            if (user.stats.gradeHistory && user.stats.gradeHistory[grade.toString()]) {
-                const gradeData = user.stats.gradeHistory[grade.toString()];
-                // Calculate global tier for this user
-                const gradeTier = this.calculateGradeTier(parseInt(grade), gradeData.bestScore, user.username);
+            // Include all users who are in this grade
+            if (user.grade === parseInt(grade)) {
+                // Check if they have played in this grade
+                let gradeData = null;
+                let gradeTier = '브론즈'; // Default to bronze
+                
+                if (user.stats.gradeHistory && user.stats.gradeHistory[grade.toString()]) {
+                    gradeData = user.stats.gradeHistory[grade.toString()];
+                    // Only calculate tier if they've actually played
+                    if (gradeData.playCount > 0) {
+                        gradeTier = this.calculateGradeTier(parseInt(grade), gradeData.bestScore, user.username);
+                    }
+                } else {
+                    // Create default grade data for users who haven't played
+                    gradeData = {
+                        bestScore: 0,
+                        bestStage: 1,
+                        correctAnswers: 0,
+                        totalAnswers: 0,
+                        playCount: 0
+                    };
+                }
+                
                 gradePlayersData.push({
                     username: user.username,
                     schoolName: user.schoolName || '',
                     gradeData: gradeData,
-                    gradeTier: gradeTier // Use grade-specific tier instead of global tier
+                    gradeTier: gradeTier
                 });
             }
         });
