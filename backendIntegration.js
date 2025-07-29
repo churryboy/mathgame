@@ -155,6 +155,11 @@ async function loadUsersFromBackend() {
     return await backendAPI.getAllUsers();
 }
 
+// Make functions available globally
+window.backendAPI = backendAPI;
+window.saveUserToBackend = saveUserToBackend;
+window.loadUsersFromBackend = loadUsersFromBackend;
+
 // Export for use in other files
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { backendAPI, saveUserToBackend, loadUsersFromBackend };

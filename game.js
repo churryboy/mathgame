@@ -111,6 +111,80 @@ class MathMonsterGame {
     init() {
         this.setupEventListeners();
         this.checkLoginStatus();
+        this.syncWithBackend();
+    }
+    
+    async syncWithBackend() {
+        try {
+            // Load users from backend
+            const backendUsers = await loadUsersFromBackend();
+            console.log('Backend users loaded:', backendUsers.length);
+            
+            // Get local users
+            const localUsers = JSON.parse(localStorage.getItem('mathGameUsers') || '[]');
+            console.log('Local users:', localUsers.length);
+            
+            // Merge backend users with local storage
+            const mergedUsers = this.mergeUserData(localUsers, backendUsers);
+            
+            // Save merged data to localStorage
+            localStorage.setItem('mathGameUsers', JSON.stringify(mergedUsers));
+            
+            // Update dashboard if user is logged in
+            if (this.currentUser) {
+                this.updateDashboard();
+            }
+        } catch (error) {
+            console.error('Error syncing with backend:', error);
+        }
+    }
+    
+    mergeUserData(localUsers, backendUsers) {
+        const merged = [...localUsers];
+        
+        backendUsers.forEach(backendUser => {
+            const existingIndex = merged.findIndex(u => u.username === backendUser.username);
+            
+            if (existingIndex === -1) {
+                // Add new user from backend
+                merged.push({
+                    username: backendUser.username,
+                    password: backendUser.password,
+                    grade: backendUser.grade,
+                    schoolName: backendUser.schoolName || backendUser.school_name,
+                    stats: backendUser.stats || {
+                        bestScore: backendUser.best_score || 0,
+                        bestStage: backendUser.best_stage || 1,
+                        playCount: backendUser.play_count || 0,
+                        correctAnswers: backendUser.correct_answers || 0,
+                        totalAnswers: backendUser.total_answers || 0,
+                        tier: backendUser.tier || '브론즈',
+                        gradeRank: 0,
+                        gradeHistory: {},
+                        lastPlayed: backendUser.last_played
+                    },
+                    createdAt: backendUser.createdAt || backendUser.created_at
+                });
+            } else {
+                // Update existing user with backend data if backend has newer data
+                const localUser = merged[existingIndex];
+                const backendStats = backendUser.stats || {};
+                
+                // Update with backend data if it's newer or has higher scores
+                if (backendStats.bestScore > localUser.stats.bestScore) {
+                    localUser.stats.bestScore = backendStats.bestScore;
+                }
+                if (backendStats.bestStage > localUser.stats.bestStage) {
+                    localUser.stats.bestStage = backendStats.bestStage;
+                }
+                
+                // Update other fields
+                localUser.grade = backendUser.grade;
+                localUser.schoolName = backendUser.schoolName || backendUser.school_name || localUser.schoolName;
+            }
+        });
+        
+        return merged;
     }
     
     initializeMonsterDisplay() {
@@ -355,7 +429,7 @@ class MathMonsterGame {
         }
     }
     
-    signup() {
+    async signup() {
         const username = document.getElementById('signup-username').value.trim();
         const password = document.getElementById('signup-password').value;
         const confirmPassword = document.getElementById('signup-confirm').value;
@@ -377,6 +451,7 @@ class MathMonsterGame {
             return;
         }
         
+        // Check both local and backend for existing username
         const users = JSON.parse(localStorage.getItem('mathGameUsers') || '[]');
         if (users.find(u => u.username === username)) {
             alert('이미 존재하는 사용자 이름입니다.');
@@ -401,6 +476,23 @@ class MathMonsterGame {
             createdAt: new Date().toISOString()
         };
         
+        // Save to backend FIRST
+        try {
+            if (typeof backendAPI !== 'undefined') {
+                console.log('Registering user to backend...');
+                const result = await backendAPI.register(username, password, parseInt(grade), schoolName);
+                if (!result.success) {
+                    alert('회원가입 실패: ' + (result.error || '알 수 없는 오류'));
+                    return;
+                }
+                console.log('Backend registration successful');
+            }
+        } catch (error) {
+            console.error('Backend registration error:', error);
+            // Continue with local storage even if backend fails
+        }
+        
+        // Then save locally
         users.push(newUser);
         localStorage.setItem('mathGameUsers', JSON.stringify(users));
         
@@ -409,15 +501,13 @@ class MathMonsterGame {
             tracker.trackSignup(username, parseInt(grade), schoolName);
         }
         
-        // Save to backend if available
-        if (typeof saveUserToBackend !== 'undefined') {
-            saveUserToBackend(newUser);
-        }
-        
         this.currentUser = newUser;
         this.isGuest = false;
         localStorage.setItem('currentUser', JSON.stringify(newUser));
         this.showDashboard();
+        
+        // Sync with backend after successful signup
+        setTimeout(() => this.syncWithBackend(), 1000);
     }
     
     loginAsGuest() {
@@ -2904,6 +2994,26 @@ game.setupLeaderboardEventListeners();
 window.debugTiers = () => game.regenerateAndDebugTiers();
 window.testTiers = () => game.testTierCalculation();
 window.checkTiers = () => game.checkCurrentTierDistribution();
+window.syncFromBackend = async () => {
+    console.log('🔄 Syncing all data from backend...');
+    try {
+        const backendUsers = await loadUsersFromBackend();
+        console.log(`✅ Loaded ${backendUsers.length} users from backend`);
+        
+        // Clear local storage and replace with backend data
+        localStorage.setItem('mathGameUsers', JSON.stringify(backendUsers));
+        
+        console.log('📊 Backend users:');
+        backendUsers.forEach(user => {
+            console.log(`  - ${user.username} (Grade ${user.grade}): ${user.stats?.bestScore || 0} points`);
+        });
+        
+        console.log('🔄 Refreshing page...');
+        setTimeout(() => location.reload(), 1000);
+    } catch (error) {
+        console.error('❌ Sync failed:', error);
+    }
+};
 window.fixTiers = () => {
     console.log('🔧 Force recalculating all tiers...');
     const allUsers = JSON.parse(localStorage.getItem('mathGameUsers') || '[]');
