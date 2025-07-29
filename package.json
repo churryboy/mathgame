@@ -1,0 +1,21 @@
+{
+  "name": "math-monster-game",
+  "version": "1.0.0",
+  "description": "Math Monster Battle Game for K-12 students",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python3 -m http.server 8000",
+    "build": "echo 'No build required for static site'"
+  },
+  "keywords": [
+    "math",
+    "education",
+    "game",
+    "korean"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.x"
+  }
+}
