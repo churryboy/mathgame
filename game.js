@@ -108,9 +108,20 @@ class MathMonsterGame {
         this.init();
     }
     
-    init() {
+    async init() {
         this.setupEventListeners();
         this.checkLoginStatus();
+        
+        // Automatically sync from backend on app start
+        try {
+            console.log('🔄 Auto-syncing from backend...');
+            await syncFromBackend();
+        } catch (error) {
+            console.error('❌ Auto-sync failed:', error);
+            // Continue with local data if backend sync fails
+        }
+        
+        // Then do the regular sync process
         this.syncWithBackend();
     }
     
