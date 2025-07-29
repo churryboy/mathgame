@@ -17,5 +17,8 @@
   "license": "MIT",
   "engines": {
     "node": ">=14.x"
+  },
+  "dependencies": {
+    "googleapis": "^118.0.0"
   }
 }
