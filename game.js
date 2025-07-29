@@ -343,6 +343,12 @@ class MathMonsterGame {
             this.currentUser = user;
             this.isGuest = false;
             localStorage.setItem('currentUser', JSON.stringify(user));
+            
+            // Track login in Mixpanel
+            if (typeof tracker !== 'undefined') {
+                tracker.trackLogin(username);
+            }
+            
             this.showDashboard();
         } else {
             alert('사용자 이름 또는 비밀번호가 올바르지 않습니다.');
@@ -397,6 +403,16 @@ class MathMonsterGame {
         
         users.push(newUser);
         localStorage.setItem('mathGameUsers', JSON.stringify(users));
+        
+        // Track signup in Mixpanel
+        if (typeof tracker !== 'undefined') {
+            tracker.trackSignup(username, parseInt(grade), schoolName);
+        }
+        
+        // Save to backend if available
+        if (typeof saveUserToBackend !== 'undefined') {
+            saveUserToBackend(newUser);
+        }
         
         this.currentUser = newUser;
         this.isGuest = false;
@@ -538,6 +554,11 @@ class MathMonsterGame {
         this.generateQuestion();
         this.updateMonster();
         this.gameInProgress = true;
+        
+        // Track game start in Mixpanel
+        if (typeof tracker !== 'undefined' && this.currentUser) {
+            tracker.trackGameStart(this.currentUser.username, this.selectedGrade);
+        }
     }
     
     pauseGame() {
