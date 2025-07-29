@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>수학 몬스터 배틀</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="login-screen" id="login-screen">
+            <h1>수학 몬스터 배틀</h1>
+            <div class="login-container">
+                <div class="login-tabs">
+                    <button id="login-tab" class="tab-btn active">로그인</button>
+                    <button id="signup-tab" class="tab-btn">회원가입</button>
+                </div>
+                
+                <div id="login-form" class="auth-form">
+                    <input type="text" id="login-username" class="auth-input" placeholder="사용자 이름" maxlength="20">
+                    <input type="password" id="login-password" class="auth-input" placeholder="비밀번호" maxlength="30">
+                    <button id="login-btn" class="auth-btn">로그인</button>
+                    <button id="guest-btn" class="guest-btn">게스트로 시작</button>
+                </div>
+                
+                <div id="signup-form" class="auth-form hidden">
+                    <input type="text" id="signup-username" class="auth-input" placeholder="사용자 이름" maxlength="20">
+                    <input type="password" id="signup-password" class="auth-input" placeholder="비밀번호" maxlength="30">
+                    <input type="password" id="signup-confirm" class="auth-input" placeholder="비밀번호 확인" maxlength="30">
+                    <input type="text" id="signup-school" class="auth-input" placeholder="학교 이름" maxlength="30">
+                    <select id="signup-grade" class="auth-select">
+                        <option value="">학년 선택</option>
+                        <option value="1">초1</option>
+                        <option value="2">초2</option>
+                        <option value="3">초3</option>
+                        <option value="4">초4</option>
+                        <option value="5">초5</option>
+                        <option value="6">초6</option>
+                        <option value="7">중1</option>
+                        <option value="8">중2</option>
+                        <option value="9">중3</option>
+                        <option value="10">고1</option>
+                        <option value="11">고2</option>
+                        <option value="12">고3</option>
+                    </select>
+                    <button id="signup-btn" class="auth-btn">회원가입</button>
+                </div>
+            </div>
+        </div>
+        
+        
+        <div class="user-dashboard hidden" id="user-dashboard">
+            <div class="dashboard-header">
+                <h2><span id="welcome-user">사용자</span></h2>
+                <div class="header-buttons">
+                    <button id="new-game-btn" class="header-btn">새 게임</button>
+                    <select id="grade-change-select" class="header-select">
+                        <option value="1">초1</option>
+                        <option value="2">초2</option>
+                        <option value="3">초3</option>
+                        <option value="4">초4</option>
+                        <option value="5">초5</option>
+                        <option value="6">초6</option>
+                        <option value="7">중1</option>
+                        <option value="8">중2</option>
+                        <option value="9">중3</option>
+                        <option value="10">고1</option>
+                        <option value="11">고2</option>
+                        <option value="12">고3</option>
+                    </select>
+                    <button id="logout-btn" class="logout-btn">로그아웃</button>
+                </div>
+            </div>
+            <div class="dashboard-content">
+                <div class="stats-section">
+                    <h3>내 통계</h3>
+                    <div class="global-stats-grid">
+                        <div class="global-stat-item">
+                            <span class="global-stat-label">총 가입자 수</span>
+                            <span id="total-users" class="global-stat-value">0</span>
+                        </div>
+                        <div class="global-stat-item">
+                            <span class="global-stat-label">현재 플레이 중</span>
+                            <span id="active-players" class="global-stat-value">0</span>
+                        </div>
+                        <div class="global-stat-item">
+                            <span class="global-stat-label">현재 학년 가입자</span>
+                            <span id="grade-users" class="global-stat-value">0</span>
+                        </div>
+                        <div class="global-stat-item">
+                            <span class="global-stat-label">현재 학년 플레이 중</span>
+                            <span id="active-grade-players" class="global-stat-value">0</span>
+                        </div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">최고 점수</span>
+                            <span id="best-score" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">최고 단계</span>
+                            <span id="best-stage" class="stat-value">1</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">플레이 횟수</span>
+                            <span id="play-count" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">정답률</span>
+                            <span id="accuracy-rate" class="stat-value">0%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">학년 순위</span>
+                            <span id="grade-rank" class="stat-value">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="my-tiers-section">
+                    <h3>내 티어 (<span id="current-grade-display">1학년</span>)</h3>
+                    <div class="current-tier-display">
+                        <div class="tier-badge" id="tier-badge">
+                            <div class="tier-icon" id="tier-icon">🥉</div>
+                            <div class="tier-info">
+                                <div class="tier-name" id="tier-name">브론즈</div>
+                                <div class="tier-rank" id="tier-rank">상위 100%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <h4 style="margin: 20px 0 15px 0; color: #666; text-align: center;">다른 학년 기록</h4>
+                    <div id="my-tiers-grid" class="my-tiers-grid"></div>
+                </div>
+                
+                <div class="leaderboard-section">
+                    <h3>리더보드</h3>
+                    <div class="leaderboard-nav">
+                        <button id="tier-all-btn" class="nav-btn active" data-tier="all">전체</button>
+                        <button id="tier-challenger-btn" class="nav-btn" data-tier="챌린저">챌린저</button>
+                        <button id="tier-grandmaster-btn" class="nav-btn" data-tier="그랜드 마스터">그마</button>
+                        <button id="tier-master-btn" class="nav-btn" data-tier="마스터">마스터</button>
+                        <button id="tier-diamond-btn" class="nav-btn" data-tier="다이어몬드">다이아</button>
+                        <button id="tier-gold-btn" class="nav-btn" data-tier="골드">골드</button>
+                        <button id="tier-silver-btn" class="nav-btn" data-tier="실버">실버</button>
+                        <button id="tier-bronze-btn" class="nav-btn" data-tier="브론즈">브론즈</button>
+                    </div>
+                    
+                    <div id="global-leaderboard" class="leaderboard-content">
+                        <h4 id="leaderboard-title">전체 순위 - 1학년</h4>
+                        <div id="leaderboard-list" class="leaderboard-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="grade-selection hidden" id="grade-selection">
+            <h2>학년을 선택하세요</h2>
+            <select id="grade-select" class="grade-select">
+                <option value="1">초1</option>
+                <option value="2">초2</option>
+                <option value="3">초3</option>
+                <option value="4">초4</option>
+                <option value="5">초5</option>
+                <option value="6">초6</option>
+                <option value="7">중1</option>
+                <option value="8">중2</option>
+                <option value="9">중3</option>
+                <option value="10">고1</option>
+                <option value="11">고2</option>
+                <option value="12">고3</option>
+            </select>
+            <button id="start-game-btn" class="start-game-btn">게임 시작</button>
+        </div>
+        
+        <div class="header hidden" id="game-header">
+            <div class="game-info">
+                <div class="user-info">
+                    <span id="current-user">사용자</span> | 학년: <span id="current-grade">1</span> | <span id="game-tier" class="tier-indicator">브론즈</span>
+                </div>
+                <div class="stage-info">스테이지 <span id="current-stage">1</span>/10</div>
+                <div class="score-info">점수: <span id="score">0</span></div>
+                <button id="pause-game-btn" class="pause-btn">게임종료</button>
+            </div>
+            <div class="player-health">
+                <div class="health-label">체력</div>
+                <div class="health-bar">
+                    <div id="player-hp-fill" class="player-hp-fill"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="battle-area hidden" id="battle-area">
+            <div class="monster-container">
+                <div id="monster" class="monster">
+                    <div id="monster-display" class="monster-display">
+                        <!-- Monster will be dynamically inserted here -->
+                    </div>
+                    <div class="monster-hp">
+                        <div class="hp-bar">
+                            <div id="hp-fill" class="hp-fill"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question-bubble">
+                <div id="math-question" class="math-question">5 + 3 = ?</div>
+                <div id="answer-feedback" class="answer-feedback hidden"></div>
+            </div>
+            
+            <div class="monster-comment-bubble hidden" id="monster-comment">
+                <div id="monster-comment-text" class="monster-comment-text"></div>
+            </div>
+        </div>
+
+        <div class="input-area hidden" id="input-area">
+            <div class="multiple-choice-container" id="multiple-choice-container">
+                <button class="choice-btn" id="choice-1"></button>
+                <button class="choice-btn" id="choice-2"></button>
+                <button class="choice-btn" id="choice-3"></button>
+            </div>
+            <div class="text-input-container hidden" id="text-input-container">
+                <input type="text" id="text-answer-input" class="text-answer-input" placeholder="답을 입력하세요" autocomplete="off">
+                <button id="submit-text-answer" class="submit-btn">제출</button>
+            </div>
+        </div>
+
+        <div class="team-area" id="team-area">
+            <div class="team-toggle">
+                <button id="team-toggle-btn" class="team-toggle-btn">팀 플레이</button>
+            </div>
+            <div id="team-panel" class="team-panel hidden">
+                <div class="team-header">
+                    <h3>팀 배틀</h3>
+                    <div class="room-code">방 코드: <span id="room-code">-</span></div>
+                </div>
+                <div class="team-controls">
+                    <button id="create-room" class="team-btn">방 만들기</button>
+                    <button id="join-room" class="team-btn">방 참가</button>
+                </div>
+                <div id="team-members" class="team-members"></div>
+            </div>
+        </div>
+
+        <div id="game-over" class="game-over-screen hidden">
+            <div class="game-over-content">
+                <h2 id="game-over-title">승리!</h2>
+                <div class="final-score">최종 점수: <span id="final-score">0</span></div>
+                <div id="game-over-message" class="game-over-message"></div>
+                <div id="leaderboard" class="leaderboard"></div>
+                <button id="play-again" class="play-again-btn">다시 하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="monsterSystem.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>

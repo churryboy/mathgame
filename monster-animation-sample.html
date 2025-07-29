@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Monster Animation Sample</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #2c3e50;
+            color: white;
+        }
+        #game-container {
+            width: 800px;
+            height: 600px;
+            margin: 0 auto;
+            border: 2px solid #34495e;
+            position: relative;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 0 5px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        .info {
+            text-align: center;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="info">
+        <h1>Modern Monster Animation Demo</h1>
+        <p>아래는 PixiJS를 사용한 몬스터 애니메이션 예제입니다</p>
+    </div>
+    
+    <div id="game-container"></div>
+    
+    <div class="controls">
+        <button onclick="playAnimation('idle')">대기 (Idle)</button>
+        <button onclick="playAnimation('walk')">걷기 (Walk)</button>
+        <button onclick="playAnimation('attack')">공격 (Attack)</button>
+        <button onclick="playAnimation('hurt')">피격 (Hurt)</button>
+    </div>
+
+    <!-- PixiJS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/pixi.js@7.x/dist/pixi.min.js"></script>
+    
+    <script>
+        // PixiJS 앱 초기화
+        const app = new PIXI.Application({
+            width: 800,
+            height: 600,
+            backgroundColor: 0x1099bb,
+            transparent: true
+        });
+        
+        document.getElementById('game-container').appendChild(app.view);
+        
+        // 간단한 몬스터 생성 (실제로는 sprite sheet를 사용)
+        const monster = new PIXI.Graphics();
+        let currentAnimation = 'idle';
+        let animationTime = 0;
+        
+        // 몬스터 그리기 함수
+        function drawMonster(state) {
+            monster.clear();
+            
+            // 몸통
+            monster.beginFill(0xFF6B6B);
+            monster.drawCircle(0, 0, 50);
+            monster.endFill();
+            
+            // 눈
+            monster.beginFill(0xFFFFFF);
+            monster.drawCircle(-15, -10, 8);
+            monster.drawCircle(15, -10, 8);
+            monster.endFill();
+            
+            monster.beginFill(0x000000);
+            monster.drawCircle(-15, -10, 4);
+            monster.drawCircle(15, -10, 4);
+            monster.endFill();
+            
+            // 입
+            monster.beginFill(0x000000);
+            if (state === 'attack') {
+                monster.drawRect(-20, 10, 40, 15); // 공격시 큰 입
+            } else {
+                monster.drawRect(-15, 15, 30, 5);
+            }
+            monster.endFill();
+            
+            // 팔
+            monster.beginFill(0xFF6B6B);
+            if (state === 'walk') {
+                // 걷기 애니메이션
+                const armAngle = Math.sin(animationTime * 0.1) * 0.3;
+                monster.drawRect(-60, -5, 20, 10);
+                monster.drawRect(40, -5, 20, 10);
+            } else if (state === 'attack') {
+                // 공격 애니메이션
+                monster.drawRect(-70, -30, 25, 12);
+                monster.drawRect(45, -30, 25, 12);
+            } else {
+                // 기본 팔
+                monster.drawRect(-55, 0, 15, 8);
+                monster.drawRect(40, 0, 15, 8);
+            }
+            monster.endFill();
+        }
+        
+        // 몬스터 초기 설정
+        monster.x = app.screen.width / 2;
+        monster.y = app.screen.height / 2;
+        app.stage.addChild(monster);
+        
+        // 애니메이션 재생 함수
+        function playAnimation(animation) {
+            currentAnimation = animation;
+            animationTime = 0;
+            
+            // 애니메이션별 효과
+            switch(animation) {
+                case 'attack':
+                    // 공격시 흔들림 효과
+                    const originalX = monster.x;
+                    monster.x = originalX + 10;
+                    setTimeout(() => { monster.x = originalX - 10; }, 50);
+                    setTimeout(() => { monster.x = originalX; }, 100);
+                    break;
+                case 'hurt':
+                    // 피격시 빨간색 플래시
+                    monster.tint = 0xFF0000;
+                    setTimeout(() => { monster.tint = 0xFFFFFF; }, 200);
+                    break;
+            }
+        }
+        
+        // 게임 루프
+        app.ticker.add((delta) => {
+            animationTime += delta;
+            
+            // 대기 애니메이션 - 위아래 움직임
+            if (currentAnimation === 'idle') {
+                monster.y = app.screen.height / 2 + Math.sin(animationTime * 0.05) * 10;
+            }
+            
+            // 걷기 애니메이션 - 좌우 이동
+            if (currentAnimation === 'walk') {
+                monster.x += Math.sin(animationTime * 0.05) * 2;
+                if (monster.x > app.screen.width - 100 || monster.x < 100) {
+                    monster.scale.x *= -1; // 방향 전환
+                }
+            }
+            
+            // 몬스터 다시 그리기
+            drawMonster(currentAnimation);
+        });
+        
+        // 초기 애니메이션
+        drawMonster('idle');
+    </script>
+
+    <div class="info">
+        <h3>추천 리소스:</h3>
+        <ul style="text-align: left; max-width: 600px; margin: 0 auto;">
+            <li><strong>Sprite Sheets:</strong> OpenGameArt.org에서 무료 몬스터 스프라이트 다운로드</li>
+            <li><strong>Skeletal Animation:</strong> Spine2D 또는 DragonBones 사용</li>
+            <li><strong>Particle Effects:</strong> 공격/피격시 파티클 효과 추가</li>
+            <li><strong>Sound Effects:</strong> Freesound.org에서 몬스터 사운드 다운로드</li>
+        </ul>
+    </div>
+</body>
+</html>
